@@ -9,6 +9,7 @@ export default function App() {
   const [cart, setCart] = useState(getData());
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [user, setUser] = useState(JSON.parse(localStorage.getItem("user")));
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   // --- Custom Design States ---
   const [customImg, setCustomImg] = useState(null);
@@ -57,41 +58,72 @@ export default function App() {
 
   const total = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
 
+  // دالة التنقل
+  const navigateTo = (p) => {
+    setPage(p);
+    setIsMenuOpen(false);
+    window.scrollTo(0,0);
+  };
+
   return (
     <div className="min-h-screen bg-white text-gray-900 font-sans selection:bg-indigo-100" dir="ltr">
-      {/* Navbar */}
-      <nav className="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-md border-b border-gray-100 px-8 py-5 flex justify-between items-center">
-        <h1 className="text-2xl font-black tracking-widest cursor-pointer uppercase" onClick={() => setPage("home")}>VELOCITY</h1>
-        <div className="hidden md:flex gap-10 text-[13px] font-bold uppercase tracking-[0.2em] text-gray-400">
-          <button onClick={() => setPage("home")} className={page==='home'?'text-black underline underline-offset-8':''}>Home</button>
-          <button onClick={() => setPage("products")} className={page==='products'?'text-black underline underline-offset-8':''}>Collection</button>
-          <button onClick={() => setPage("custom")} className={page==='custom'?'text-black underline underline-offset-8':''}>Custom</button>
-          <button onClick={() => setPage("about")} className={page==='about'?'text-black underline underline-offset-8':''}>About</button>
-          <button onClick={() => setPage("contact")} className={page==='contact'?'text-black underline underline-offset-8':''}>Contact</button>
+      
+      {/* Navbar مع معالجة ألوان الموبايل */}
+      <nav className="fixed top-0 w-full z-[100] bg-white border-b border-gray-100 px-6 md:px-12 py-5 flex justify-between items-center">
+        <div className="flex items-center gap-4">
+          <button className="md:hidden text-2xl" onClick={() => setIsMenuOpen(!isMenuOpen)}>
+            {isMenuOpen ? "✕" : "☰"}
+          </button>
+          <h1 className="text-xl md:text-2xl font-black tracking-widest cursor-pointer uppercase" onClick={() => navigateTo("home")}>VELOCITY</h1>
         </div>
-        <div className="flex gap-6 items-center">
-          <button onClick={() => setPage("cart")} className="text-[13px] font-bold flex items-center gap-2 uppercase tracking-widest">
+
+        {/* Desktop Links */}
+        <div className="hidden md:flex gap-10 text-[13px] font-bold uppercase tracking-[0.2em] text-gray-400">
+          <button onClick={() => navigateTo("home")} className={page==='home'?'text-black underline underline-offset-8':''}>Home</button>
+          <button onClick={() => navigateTo("products")} className={page==='products'?'text-black underline underline-offset-8':''}>Collection</button>
+          <button onClick={() => navigateTo("custom")} className={page==='custom'?'text-black underline underline-offset-8':''}>Custom</button>
+          <button onClick={() => navigateTo("about")} className={page==='about'?'text-black underline underline-offset-8':''}>About</button>
+          <button onClick={() => navigateTo("contact")} className={page==='contact'?'text-black underline underline-offset-8':''}>Contact</button>
+        </div>
+
+        <div className="flex gap-4 md:gap-6 items-center">
+          <button onClick={() => navigateTo("cart")} className="text-[11px] md:text-[13px] font-bold flex items-center gap-2 uppercase tracking-widest">
             Bag <span className="bg-black text-white w-5 h-5 flex items-center justify-center rounded-full text-[10px]">{cart.length}</span>
           </button>
           {user ? (
-            <button onClick={() => {localStorage.removeItem("user"); setUser(null); setPage("home");}} className="text-[11px] font-black border-b-2 border-black pb-1 uppercase">{user.name}</button>
+            <button onClick={() => {localStorage.removeItem("user"); setUser(null); navigateTo("home");}} className="hidden md:block text-[11px] font-black border-b-2 border-black pb-1 uppercase">{user.name}</button>
           ) : (
-            <button onClick={() => setPage("login")} className="text-[11px] font-black border-b-2 border-black pb-1 uppercase tracking-widest">Login</button>
+            <button onClick={() => navigateTo("login")} className="hidden md:block text-[11px] font-black border-b-2 border-black pb-1 uppercase tracking-widest">Login</button>
           )}
+        </div>
+
+        {/* Mobile Menu Overlay - بخلفية بيضاء صريحة ونصوص واضحة */}
+        <div className={`fixed inset-0 top-[70px] bg-white z-[90] flex flex-col p-8 gap-6 transition-transform duration-300 md:hidden ${isMenuOpen ? "translate-x-0" : "-translate-x-full"}`}>
+          {["home", "products", "custom", "about", "contact"].map((p) => (
+            <button 
+              key={p} 
+              onClick={() => navigateTo(p)} 
+              className={`text-2xl font-black uppercase text-left border-b border-gray-50 pb-4 ${page === p ? 'text-black' : 'text-gray-400'}`}
+            >
+              {p === 'products' ? 'Collection' : p}
+            </button>
+          ))}
+          {!user && <button onClick={() => navigateTo("login")} className="text-2xl font-black uppercase text-left text-gray-400">Login</button>}
+          {user && <button onClick={() => {localStorage.removeItem("user"); setUser(null); navigateTo("home");}} className="text-2xl font-black uppercase text-left text-red-500">Logout</button>}
         </div>
       </nav>
 
-      <main className="pt-28 pb-20 px-8">
+      <main className="pt-28 pb-20 px-6 md:px-8">
         {/* --- Home Page --- */}
         {page === "home" && (
-          <div className="relative h-[85vh] w-full rounded-3xl overflow-hidden group shadow-2xl">
-            <img src="https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?auto=format&fit=crop&q=80&w=1600" className="absolute inset-0 w-full h-full object-cover grayscale-[0.2] group-hover:scale-105 transition-transform duration-[3s]" alt="Hero" />
-            <div className="absolute inset-0 bg-black/30 flex flex-col items-center justify-center text-white p-6 text-center">
+          <div className="relative h-[70vh] md:h-[85vh] w-full rounded-[2rem] overflow-hidden group shadow-2xl">
+            <img src="https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?auto=format&fit=crop&q=80&w=1600" className="absolute inset-0 w-full h-full object-cover grayscale-[0.2]" alt="Hero" />
+            <div className="absolute inset-0 bg-black/40 flex flex-col items-center justify-center text-white p-6 text-center">
               <span className="text-[12px] font-bold tracking-[0.5em] mb-4 uppercase">Established 2026</span>
-              <h1 className="text-6xl md:text-8xl font-black tracking-tighter mb-8 italic uppercase leading-[0.9]">CRAFTSMANSHIP <br/> OVER TRENDS.</h1>
-              <div className="flex gap-4">
-                <button onClick={() => setPage("products")} className="bg-white text-black px-12 py-4 rounded-full font-black text-sm tracking-widest hover:invert transition uppercase shadow-xl">Explore Shop</button>
-                <button onClick={() => setPage("custom")} className="bg-transparent border-2 border-white text-white px-12 py-4 rounded-full font-black text-sm tracking-widest hover:bg-white hover:text-black transition uppercase">Custom Studio</button>
+              <h1 className="text-4xl md:text-8xl font-black tracking-tighter mb-8 italic uppercase leading-none">CRAFTSMANSHIP <br/> OVER TRENDS.</h1>
+              <div className="flex flex-col md:flex-row gap-4">
+                <button onClick={() => setPage("products")} className="bg-white text-black px-12 py-4 rounded-full font-black text-sm tracking-widest uppercase shadow-xl">Explore Shop</button>
+                <button onClick={() => setPage("custom")} className="bg-transparent border-2 border-white text-white px-12 py-4 rounded-full font-black text-sm tracking-widest uppercase">Custom Studio</button>
               </div>
             </div>
           </div>
@@ -99,27 +131,26 @@ export default function App() {
 
         {/* --- Login Page --- */}
         {page === "login" && (
-          <div className="max-w-md mx-auto py-24">
+          <div className="max-w-md mx-auto py-10 md:py-24">
             <div className="text-center mb-16">
-              <h2 className="text-5xl font-black italic tracking-tighter uppercase underline decoration-gray-100 underline-offset-[12px]">Member Access</h2>
-              <p className="mt-6 text-gray-400 font-bold uppercase text-xs tracking-[0.3em]">Enter your identity to proceed</p>
+              <h2 className="text-4xl md:text-5xl font-black italic tracking-tighter uppercase underline decoration-gray-100 underline-offset-[12px]">Member Access</h2>
             </div>
             <div className="space-y-10">
               <div className="space-y-2">
-                <label className="text-[10px] font-black tracking-widest text-gray-300 uppercase ml-2">Email Address</label>
-                <input id="login-email" className="w-full bg-transparent border-b-2 border-gray-100 p-5 font-bold text-xl focus:border-black outline-none transition placeholder:text-gray-100" placeholder="YOU@EXAMPLE.COM" />
+                <label className="text-[10px] font-black tracking-widest text-gray-300 uppercase">Email</label>
+                <input id="login-email" className="w-full bg-transparent border-b-2 border-gray-100 p-4 font-bold text-xl focus:border-black outline-none transition" placeholder="YOU@EXAMPLE.COM" />
               </div>
               <div className="space-y-2">
-                <label className="text-[10px] font-black tracking-widest text-gray-300 uppercase ml-2">Password</label>
-                <input className="w-full bg-transparent border-b-2 border-gray-100 p-5 font-bold text-xl focus:border-black outline-none transition" type="password" placeholder="••••••••" />
+                <label className="text-[10px] font-black tracking-widest text-gray-300 uppercase">Password</label>
+                <input className="w-full bg-transparent border-b-2 border-gray-100 p-4 font-bold text-xl focus:border-black outline-none transition" type="password" placeholder="••••••••" />
               </div>
-              <button className="w-full bg-black text-white py-7 rounded-full font-black text-sm tracking-[0.5em] hover:invert transition shadow-2xl uppercase mt-10" onClick={() => {
+              <button className="w-full bg-black text-white py-6 rounded-full font-black text-sm tracking-[0.5em] uppercase" onClick={() => {
                 const mail = document.getElementById('login-email').value;
                 if(mail) { 
                   const userData = {name: mail.split('@')[0].toUpperCase()};
                   setUser(userData); 
                   localStorage.setItem("user", JSON.stringify(userData));
-                  setPage('home'); 
+                  navigateTo('home'); 
                 }
               }}>Access Account</button>
             </div>
@@ -129,96 +160,91 @@ export default function App() {
         {/* --- Custom Lab Page --- */}
         {page === "custom" && (
           <div className="max-w-6xl mx-auto py-10">
-            <h2 className="text-center text-4xl font-black italic tracking-tighter uppercase underline decoration-gray-200 underline-offset-[12px] mb-20">Custom Lab</h2>
-            <div className="flex flex-col md:flex-row gap-20">
-              <div className="md:w-1/2 relative bg-gray-50 rounded-[3rem] p-12 flex items-center justify-center shadow-inner aspect-square">
+            <h2 className="text-center text-4xl font-black italic tracking-tighter uppercase mb-20">Custom Lab</h2>
+            <div className="flex flex-col md:flex-row gap-10 md:gap-20">
+              <div className="w-full md:w-1/2 relative bg-gray-50 rounded-[3rem] p-6 md:p-12 flex items-center justify-center shadow-inner aspect-square">
                 <img src={customType === "T-Shirt" ? "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=800" : "https://images.unsplash.com/photo-1556821840-3a63f95609a7?w=800"} className="w-full h-full object-contain mix-blend-multiply opacity-80" alt="Base" />
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center gap-4 w-44 text-center">
                    {customImg && <img src={customImg} className="max-w-full max-h-36 object-contain rounded shadow-lg" alt="User Design" />}
-                   {customText && <p style={{ color: textColor }} className="text-2xl font-black break-words leading-tight uppercase tracking-tighter shadow-sm">{customText}</p>}
+                   {customText && <p style={{ color: textColor }} className="text-2xl font-black break-words uppercase">{customText}</p>}
                 </div>
               </div>
-              <div className="md:w-1/2 space-y-10">
-                <div className="space-y-5"><h4 className="font-black text-sm tracking-widest uppercase italic">1. Apparel Type</h4><div className="flex gap-4">{["T-Shirt", "Hoodie"].map(t => (<button key={t} onClick={() => setCustomType(t)} className={`px-10 py-4 rounded-xl font-bold text-xs tracking-widest transition ${customType === t ? 'bg-black text-white shadow-xl' : 'bg-gray-100 text-gray-400'}`}>{t.toUpperCase()}</button>))}</div></div>
-                <div className="space-y-5"><h4 className="font-black text-sm tracking-widest uppercase italic">2. Add Text</h4><input value={customText} onChange={(e) => setCustomText(e.target.value)} className="w-full bg-transparent border-b-2 border-gray-100 p-4 font-bold text-lg focus:border-black outline-none transition" placeholder="TYPE HERE..." /><div className="flex items-center gap-4 mt-4"><span className="text-xs font-black text-gray-400">COLOR:</span><input type="color" value={textColor} onChange={(e) => setTextColor(e.target.value)} className="w-10 h-10 rounded-full cursor-pointer border-none bg-transparent" /></div></div>
-                <div className="space-y-5"><h4 className="font-black text-sm tracking-widest uppercase italic">3. Upload Graphic</h4><label className="block w-full cursor-pointer bg-gray-50 border-2 border-dashed border-gray-200 rounded-2xl p-10 text-center hover:border-black transition"><input type="file" className="hidden" onChange={(e) => {const f=e.target.files[0]; if(f) setCustomImg(URL.createObjectURL(f))}} accept="image/*" /><span className="text-gray-400 font-black uppercase text-[11px] tracking-[0.2em] italic">Browse Design</span></label></div>
-                <button onClick={() => {alert("Custom Piece Added!"); setPage("cart");}} className="w-full bg-black text-white py-6 rounded-full font-black text-sm tracking-[0.4em] hover:invert transition shadow-2xl uppercase">Add to Bag</button>
+              <div className="w-full md:w-1/2 space-y-8">
+                <div className="space-y-4"><h4 className="font-black text-sm uppercase italic">1. Apparel Type</h4><div className="flex gap-4">{["T-Shirt", "Hoodie"].map(t => (<button key={t} onClick={() => setCustomType(t)} className={`px-6 py-3 rounded-xl font-bold text-xs tracking-widest ${customType === t ? 'bg-black text-white' : 'bg-gray-100 text-gray-400'}`}>{t.toUpperCase()}</button>))}</div></div>
+                <div className="space-y-4"><h4 className="font-black text-sm uppercase italic">2. Add Text</h4><input value={customText} onChange={(e) => setCustomText(e.target.value)} className="w-full border-b-2 border-gray-100 p-4 font-bold text-lg focus:border-black outline-none bg-transparent" placeholder="TYPE HERE..." /><div className="flex items-center gap-4 mt-2"><span className="text-xs font-black">COLOR:</span><input type="color" value={textColor} onChange={(e) => setTextColor(e.target.value)} className="w-8 h-8 rounded-full cursor-pointer" /></div></div>
+                <div className="space-y-4"><h4 className="font-black text-sm uppercase italic">3. Upload Graphic</h4><label className="block w-full cursor-pointer bg-gray-50 border-2 border-dashed border-gray-200 rounded-2xl p-8 text-center"><input type="file" className="hidden" onChange={(e) => {const f=e.target.files[0]; if(f) setCustomImg(URL.createObjectURL(f))}} accept="image/*" /><span className="text-gray-400 font-black uppercase text-[10px]">Browse Design</span></label></div>
+                <button onClick={() => {alert("Custom Piece Added!"); navigateTo("cart");}} className="w-full bg-black text-white py-6 rounded-full font-black text-sm tracking-[0.4em] uppercase shadow-2xl">Add to Bag</button>
               </div>
             </div>
           </div>
         )}
 
-        {/* --- Collection/About/Contact --- */}
+        {/* --- Collection Page --- */}
         {page === "products" && (
           <div className="max-w-7xl mx-auto">
-            <h2 className="text-center text-[12px] tracking-[0.6em] font-black uppercase mb-20 text-gray-400 italic">Full Collection</h2>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-x-10 gap-y-20">
+            <h2 className="text-center text-[12px] tracking-[0.6em] font-black uppercase mb-16 text-gray-400 italic">Full Collection</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-x-10 gap-y-20">
               {products.map(p => (
                 <div key={p.id} className="cursor-pointer group" onClick={() => setSelectedProduct(p)}>
-                  <div className="aspect-[4/5] overflow-hidden bg-gray-50 rounded-2xl mb-6 shadow-sm"><img src={p.image} className="w-full h-full object-cover group-hover:scale-110 transition duration-1000 grayscale-[0.2] group-hover:grayscale-0" alt={p.name} /></div>
-                  <div className="space-y-2 text-center md:text-left"><h3 className="font-bold text-[14px] uppercase tracking-[0.15em] text-gray-800 leading-tight">{p.name}</h3><p className="text-[15px] text-gray-400 font-bold tracking-widest">${p.price}.00</p></div>
+                  <div className="aspect-[4/5] overflow-hidden bg-gray-50 rounded-2xl mb-6 shadow-sm"><img src={p.image} className="w-full h-full object-cover group-hover:scale-110 transition duration-1000 grayscale-[0.2]" alt={p.name} /></div>
+                  <div className="space-y-2"><h3 className="font-bold text-[14px] uppercase tracking-[0.15em]">{p.name}</h3><p className="text-[15px] text-gray-400 font-bold">${p.price}.00</p></div>
                 </div>
               ))}
             </div>
           </div>
         )}
 
+        {/* --- About Page --- */}
         {page === "about" && (
           <div className="max-w-3xl mx-auto py-24 text-center">
             <h2 className="text-5xl font-black mb-16 italic tracking-tighter uppercase underline decoration-gray-100 underline-offset-[15px]">Our Story</h2>
-            <p className="text-2xl text-gray-500 leading-[1.8] italic font-medium tracking-wide">Velocity is more than a label; it's a statement. Founded in 2026, we specialize in luxury minimalism.</p>
+            <p className="text-xl md:text-2xl text-gray-500 leading-[1.8] italic font-medium">Velocity is more than a label; it's a statement. Founded in 2026, we specialize in luxury minimalism.</p>
           </div>
         )}
 
+        {/* --- Contact Page --- */}
         {page === "contact" && (
-          <div className="max-w-2xl mx-auto py-16 text-center">
-            <h2 className="text-5xl font-black mb-20 italic tracking-tighter uppercase underline decoration-gray-100 underline-offset-[15px]">Get In Touch</h2>
-            <div className="space-y-12 text-left">
-              <input className="w-full bg-transparent border-b-2 border-gray-100 p-5 font-bold text-lg focus:border-black outline-none transition" placeholder="NAME" />
-              <textarea className="w-full bg-transparent border-b-2 border-gray-100 p-5 h-48 font-bold text-lg focus:border-black outline-none transition" placeholder="MESSAGE"></textarea>
-              <button className="w-full bg-black text-white py-7 rounded-full font-black text-sm tracking-[0.5em] hover:invert transition shadow-2xl uppercase" onClick={() => alert("Sent.")}>Send Query</button>
+          <div className="max-w-2xl mx-auto py-16">
+            <h2 className="text-center text-5xl font-black mb-20 italic uppercase">Get In Touch</h2>
+            <div className="space-y-10">
+              <input className="w-full bg-transparent border-b-2 border-gray-100 p-5 font-bold text-lg focus:border-black outline-none" placeholder="NAME" />
+              <textarea className="w-full bg-transparent border-b-2 border-gray-100 p-5 h-48 font-bold text-lg focus:border-black outline-none" placeholder="MESSAGE"></textarea>
+              <button className="w-full bg-black text-white py-7 rounded-full font-black text-sm tracking-[0.5em] uppercase shadow-2xl" onClick={() => alert("Sent.")}>Send Query</button>
             </div>
           </div>
         )}
 
-        {/* --- Cart Page (REFIXED CHECKOUT BUTTON) --- */}
+        {/* --- Cart Page --- */}
         {page === "cart" && (
           <div className="max-w-4xl mx-auto">
-            <h2 className="text-2xl font-black mb-20 tracking-[0.4em] uppercase border-b-2 pb-8 italic">Your Bag</h2>
+            <h2 className="text-2xl font-black mb-16 tracking-[0.4em] uppercase border-b-2 pb-8 italic">Your Bag</h2>
             {cart.length === 0 ? (
               <p className="text-gray-300 text-center py-32 text-lg uppercase tracking-[0.4em] italic font-bold">Empty</p>
             ) : (
-              <div className="space-y-16">
+              <div className="space-y-12">
                 {cart.map(item => (
-                  <div key={item.id} className="flex flex-col md:flex-row items-center gap-12 border-b border-gray-50 pb-12">
-                    <img src={item.image} className="w-32 h-44 object-cover rounded-2xl shadow-lg" alt="" />
-                    <div className="flex-1">
-                      <h4 className="font-black uppercase text-lg tracking-widest mb-4">{item.name}</h4>
-                      <div className="flex items-center gap-8 bg-gray-50 w-fit px-6 py-3 rounded-full">
-                        <button onClick={() => updateQty(item.id, -1)} className="text-2xl">－</button>
+                  <div key={item.id} className="flex flex-col md:flex-row items-center gap-8 border-b border-gray-50 pb-12">
+                    <img src={item.image} className="w-24 h-32 object-cover rounded-xl shadow-lg" alt="" />
+                    <div className="flex-1 text-center md:text-left">
+                      <h4 className="font-black uppercase text-lg mb-4">{item.name}</h4>
+                      <div className="flex items-center justify-center md:justify-start gap-6 bg-gray-50 w-fit px-6 py-2 rounded-full mx-auto md:mx-0">
+                        <button onClick={() => updateQty(item.id, -1)} className="text-xl">－</button>
                         <span className="text-lg font-black">{item.qty}</span>
-                        <button onClick={() => updateQty(item.id, 1)} className="text-2xl">＋</button>
+                        <button onClick={() => updateQty(item.id, 1)} className="text-xl">＋</button>
                       </div>
                     </div>
-                    <div className="text-right">
-                      <p className="font-black text-2xl mb-6">${item.price * item.qty}</p>
-                      <button onClick={() => removeFromCart(item.id)} className="text-xs font-black text-red-400 uppercase underline underline-offset-8">Remove Item</button>
+                    <div className="text-center md:text-right">
+                      <p className="font-black text-2xl mb-4">${item.price * item.qty}</p>
+                      <button onClick={() => removeFromCart(item.id)} className="text-[10px] font-black text-red-400 uppercase underline">Remove</button>
                     </div>
                   </div>
                 ))}
-                
-                {/* --- THE CHECKOUT BAR --- */}
-                <div className="mt-20 p-10 bg-gray-50 rounded-[2.5rem] flex flex-col md:flex-row justify-between items-center gap-10">
+                <div className="mt-10 p-8 bg-gray-50 rounded-[2rem] flex flex-col md:flex-row justify-between items-center gap-8">
                     <div className="text-center md:text-left">
-                        <p className="text-[10px] font-black uppercase text-gray-400 tracking-[0.3em] mb-2">Grand Total</p>
-                        <p className="text-5xl font-black italic tracking-tighter">${total}.00</p>
+                        <p className="text-[10px] font-black uppercase text-gray-400 mb-2">Grand Total</p>
+                        <p className="text-4xl font-black italic">${total}.00</p>
                     </div>
-                    <button 
-                        onClick={() => alert("Redirecting to Checkout...")}
-                        className="bg-black text-white px-16 py-7 rounded-full font-black text-sm tracking-[0.4em] hover:invert transition shadow-2xl uppercase w-full md:w-auto"
-                    >
-                        Checkout Now
-                    </button>
+                    <button className="bg-black text-white px-12 py-6 rounded-full font-black text-sm tracking-[0.4em] uppercase w-full md:w-auto shadow-2xl">Checkout Now</button>
                 </div>
               </div>
             )}
@@ -228,14 +254,14 @@ export default function App() {
 
       {/* --- Modal --- */}
       {selectedProduct && (
-        <div className="fixed inset-0 bg-white/98 z-[100] flex items-center justify-center p-10">
-          <div className="max-w-6xl w-full flex flex-col md:flex-row gap-20 relative">
-            <button onClick={() => setSelectedProduct(null)} className="absolute -top-16 right-0 text-5xl font-thin hover:rotate-90 transition">✕</button>
-            <div className="md:w-1/2 aspect-[3/4] overflow-hidden shadow-2xl"><img src={selectedProduct.image} className="w-full h-full object-cover rounded-[2rem]" alt="" /></div>
-            <div className="md:w-1/2 flex flex-col justify-center space-y-12">
-              <h2 className="text-7xl font-black tracking-tighter uppercase italic leading-none">{selectedProduct.name}</h2>
-              <p className="text-4xl font-light text-gray-300 font-bold tracking-[0.2em]">${selectedProduct.price}.00</p>
-              <button onClick={() => {addToCart(selectedProduct); setSelectedProduct(null);}} className="bg-black text-white py-8 rounded-full font-black text-xl tracking-[0.3em] hover:invert transition uppercase">Add to Bag</button>
+        <div className="fixed inset-0 bg-white z-[200] flex items-center justify-center p-6 overflow-y-auto">
+          <div className="max-w-6xl w-full flex flex-col md:flex-row gap-10 md:gap-20 relative pt-10">
+            <button onClick={() => setSelectedProduct(null)} className="absolute top-0 right-0 text-4xl font-thin">✕</button>
+            <div className="w-full md:w-1/2 aspect-[3/4] overflow-hidden"><img src={selectedProduct.image} className="w-full h-full object-cover rounded-2xl shadow-2xl" alt="" /></div>
+            <div className="w-full md:w-1/2 flex flex-col justify-center space-y-8">
+              <h2 className="text-5xl md:text-7xl font-black tracking-tighter uppercase italic">{selectedProduct.name}</h2>
+              <p className="text-3xl font-bold text-gray-300">${selectedProduct.price}.00</p>
+              <button onClick={() => {addToCart(selectedProduct); setSelectedProduct(null);}} className="bg-black text-white py-6 rounded-full font-black text-lg tracking-[0.3em] uppercase">Add to Bag</button>
             </div>
           </div>
         </div>
