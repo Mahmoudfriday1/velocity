@@ -182,7 +182,7 @@ export default function App() {
             <h2 className="text-center text-4xl font-black italic tracking-tighter uppercase mb-20">Custom Lab</h2>
             <div className="flex flex-col md:flex-row gap-10 md:gap-20">
               <div className="w-full md:w-1/2 relative bg-gray-50 rounded-[3rem] p-6 md:p-12 flex items-center justify-center shadow-inner aspect-square">
-                <img src={customType === "T-Shirt" ? "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=500" : "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=500"} className="w-full h-full object-contain mix-blend-multiply opacity-80" alt="Base" />
+                <img src={customType === "T-Shirt" ? "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=500" : "https://images.unsplash.com/photo-1556821840-3a63f95609a7?w=800"} className="w-full h-full object-contain mix-blend-multiply opacity-80" alt="Base" />
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center gap-4 w-44 text-center">
                    {customImg && <img src={customImg} className="max-w-full max-h-36 object-contain rounded shadow-lg" alt="User Design" />}
                    {customText && <p style={{ color: textColor }} className="text-2xl font-black break-words uppercase">{customText}</p>}
