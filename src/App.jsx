@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 
+// دالات إدارة البيانات في LocalStorage
 const getData = () => JSON.parse(localStorage.getItem("cart")) || [];
 const saveData = (data) => localStorage.setItem("cart", JSON.stringify(data));
 
@@ -10,8 +11,11 @@ export default function App() {
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [user, setUser] = useState(JSON.parse(localStorage.getItem("user")));
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  
+  // حالة الفلتر النشط
+  const [activeFilter, setActiveFilter] = useState("All");
 
-  // --- Custom Design States ---
+  // حالات المعمل الخاص (Custom Design)
   const [customImg, setCustomImg] = useState(null);
   const [customText, setCustomText] = useState("");
   const [textColor, setTextColor] = useState("#000000");
@@ -19,18 +23,33 @@ export default function App() {
 
   useEffect(() => {
     const initialProducts = [
-      { id: 1, name: "Oxford White Shirt", price: 35, image: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=500" },
-      { id: 2, name: "Black Heavy Hoodie", price: 55, image: "https://images.unsplash.com/photo-1556821840-3a63f95609a7?w=500" },
-      { id: 3, name: "Vintage Denim Jacket", price: 90, image: "https://images.unsplash.com/photo-1576871333020-2219bc088863?w=500" },
-      { id: 4, name: "Wool Trench Coat", price: 150, image: "https://images.unsplash.com/photo-1591047139829-d91aecb6caea?w=500" },
-      { id: 5, name: "Urban Cargo Pants", price: 60, image: "https://images.unsplash.com/photo-1624371414361-e6e8ea02c1e2?w=500" },
-      { id: 6, name: "Beige Knit Sweater", price: 45, image: "https://images.unsplash.com/photo-1614676471928-2ed0ad1061a4?w=500" },
-      { id: 7, name: "Utility Bomber", price: 80, image: "https://images.unsplash.com/photo-1591047139829-d91aecb6caea?w=500" },
-      { id: 8, name: "Linen Summer Shirt", price: 30, image: "https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=500" },
-      { id: 9, name: "Nightfall Parka", price: 110, image: "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=500" },
-      { id: 10, name: "Classic Chinos", price: 40, image: "https://images.unsplash.com/photo-1473966968600-fa801b869a1a?w=500" },
-      { id: 11, name: "Puffer Vest", price: 70, image: "https://images.unsplash.com/photo-1604644401890-0bd678c83788?w=500" },
-      { id: 12, name: "Satin Evening Shirt", price: 50, image: "https://images.unsplash.com/photo-1602810318383-e386cc2a3ccf?w=500" },
+      // Shirts
+      { id: 1, name: "Oxford White Shirt", price: 35, category: "Shirt", image: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=500" },
+      { id: 2, name: "Linen Summer Shirt", price: 30, category: "Shirt", image: "https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=500" },
+      { id: 3, name: "Satin Evening Shirt", price: 50, category: "Shirt", image: "https://images.unsplash.com/photo-1602810318383-e386cc2a3ccf?w=500" },
+      { id: 4, name: "Flannel Plaid Shirt", price: 40, category: "Shirt", image: "https://images.pexels.com/photos/1232459/pexels-photo-1232459.jpeg" },
+      { id: 5, name: "Denim Western Shirt", price: 45, category: "Shirt", image: "https://images.pexels.com/photos/4066293/pexels-photo-4066293.jpeg" },
+      
+      // Hoodies
+      { id: 6, name: "Black Heavy Hoodie", price: 55, category: "Hoodie", image: "https://images.unsplash.com/photo-1556821840-3a63f95609a7?w=500" },
+      { id: 7, name: "Essential Grey Hoodie", price: 50, category: "Hoodie", image: "https://images.unsplash.com/photo-1564557287817-3785e38ec1f5?w=500" },
+      { id: 8, name: "Streetwear Graphic Hoodie", price: 65, category: "Hoodie", image: "https://images.unsplash.com/photo-1620799140408-edc6dcb6d633?w=500" },
+      { id: 9, name: "Overweight Navy Hoodie", price: 60, category: "Hoodie", image: "https://images.pexels.com/photos/1183266/pexels-photo-1183266.jpeg" },
+      
+      // T-Shirts
+      { id: 10, name: "Premium Cotton Tee", price: 25, category: "T-Shirt", image: "https://images.pexels.com/photos/4066288/pexels-photo-4066288.jpeg" },
+      { id: 11, name: "Vintage Rock Tee", price: 30, category: "T-Shirt", image: "https://images.pexels.com/photos/1656684/pexels-photo-1656684.jpeg" },
+      { id: 12, name: "Minimalist Black Tee", price: 20, category: "T-Shirt", image: "https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?w=500" },
+      { id: 13, name: "Oversized Sand Tee", price: 28, category: "T-Shirt", image: "https://images.unsplash.com/photo-1562157873-818bc0726f68?w=500" },
+      { id: 14, name: "Striped Retro Tee", price: 22, category: "T-Shirt", image: "https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?w=500" },
+
+      // Pants
+      { id: 15, name: "Urban Cargo Pants", price: 60, category: "Pants", image: "https://images.pexels.com/photos/1346187/pexels-photo-1346187.jpeg" },
+      { id: 16, name: "Classic Beige Chinos", price: 40, category: "Pants", image: "https://images.unsplash.com/photo-1473966968600-fa801b869a1a?w=500" },
+      { id: 17, name: "Slim Fit Black Jeans", price: 70, category: "Pants", image: "https://images.unsplash.com/photo-1541099649105-f69ad21f3246?w=500" },
+      { id: 18, name: "Relaxed Linen Trousers", price: 55, category: "Pants", image: "https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?w=500" },
+      { id: 19, name: "Active Track Pants", price: 45, category: "Pants", image: "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=500" },
+      { id: 20, name: "Corduroy Straight Pants", price: 65, category: "Pants", image: "https://images.unsplash.com/photo-1552902865-b72c031ac5ea?w=500" },
     ];
     setProducts(initialProducts);
   }, []);
@@ -58,26 +77,29 @@ export default function App() {
 
   const total = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
 
-  // دالة التنقل
   const navigateTo = (p) => {
     setPage(p);
     setIsMenuOpen(false);
     window.scrollTo(0,0);
   };
 
+  // تصفية المنتجات بناءً على القسم المختار
+  const filteredProducts = activeFilter === "All" 
+    ? products 
+    : products.filter(p => p.category === activeFilter);
+
   return (
     <div className="min-h-screen bg-white text-gray-900 font-sans selection:bg-indigo-100" dir="ltr">
       
-      {/* Navbar مع معالجة ألوان الموبايل */}
+      {/* Navbar */}
       <nav className="fixed top-0 w-full z-[100] bg-white border-b border-gray-100 px-6 md:px-12 py-5 flex justify-between items-center">
         <div className="flex items-center gap-4">
           <button className="md:hidden text-2xl" onClick={() => setIsMenuOpen(!isMenuOpen)}>
             {isMenuOpen ? "✕" : "☰"}
           </button>
-          <h1 className="text-xl md:text-2xl font-black tracking-widest cursor-pointer uppercase" onClick={() => navigateTo("home")}>VELOCITY</h1>
+          <h1 className="text-xl md:text-2xl font-black tracking-widest cursor-pointer uppercase" onClick={() => navigateTo("home")}>Drip Store</h1>
         </div>
 
-        {/* Desktop Links */}
         <div className="hidden md:flex gap-10 text-[13px] font-bold uppercase tracking-[0.2em] text-gray-400">
           <button onClick={() => navigateTo("home")} className={page==='home'?'text-black underline underline-offset-8':''}>Home</button>
           <button onClick={() => navigateTo("products")} className={page==='products'?'text-black underline underline-offset-8':''}>Collection</button>
@@ -97,14 +119,10 @@ export default function App() {
           )}
         </div>
 
-        {/* Mobile Menu Overlay - بخلفية بيضاء صريحة ونصوص واضحة */}
+        {/* Mobile Menu Overlay */}
         <div className={`fixed inset-0 top-[70px] bg-white z-[90] flex flex-col p-8 gap-6 transition-transform duration-300 md:hidden ${isMenuOpen ? "translate-x-0" : "-translate-x-full"}`}>
           {["home", "products", "custom", "about", "contact"].map((p) => (
-            <button 
-              key={p} 
-              onClick={() => navigateTo(p)} 
-              className={`text-2xl font-black uppercase text-left border-b border-gray-50 pb-4 ${page === p ? 'text-black' : 'text-gray-400'}`}
-            >
+            <button key={p} onClick={() => navigateTo(p)} className={`text-2xl font-black uppercase text-left border-b border-gray-50 pb-4 ${page === p ? 'text-black' : 'text-gray-400'}`}>
               {p === 'products' ? 'Collection' : p}
             </button>
           ))}
@@ -114,6 +132,7 @@ export default function App() {
       </nav>
 
       <main className="pt-28 pb-20 px-6 md:px-8">
+        
         {/* --- Home Page --- */}
         {page === "home" && (
           <div className="relative h-[70vh] md:h-[85vh] w-full rounded-[2rem] overflow-hidden group shadow-2xl">
@@ -163,7 +182,7 @@ export default function App() {
             <h2 className="text-center text-4xl font-black italic tracking-tighter uppercase mb-20">Custom Lab</h2>
             <div className="flex flex-col md:flex-row gap-10 md:gap-20">
               <div className="w-full md:w-1/2 relative bg-gray-50 rounded-[3rem] p-6 md:p-12 flex items-center justify-center shadow-inner aspect-square">
-                <img src={customType === "T-Shirt" ? "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=800" : "https://images.unsplash.com/photo-1556821840-3a63f95609a7?w=800"} className="w-full h-full object-contain mix-blend-multiply opacity-80" alt="Base" />
+                <img src={customType === "T-Shirt" ? "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=800" : "https://images.unsplash.com/photo-1556821840-3a63f95609a7?w=800"} className="w-full h-full object-contain mix-blend-multiply opacity-80" alt="Base" />
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center gap-4 w-44 text-center">
                    {customImg && <img src={customImg} className="max-w-full max-h-36 object-contain rounded shadow-lg" alt="User Design" />}
                    {customText && <p style={{ color: textColor }} className="text-2xl font-black break-words uppercase">{customText}</p>}
@@ -179,22 +198,46 @@ export default function App() {
           </div>
         )}
 
-        {/* --- Collection Page --- */}
+        {/* --- Collection Page (With New Categories & More Products) --- */}
         {page === "products" && (
           <div className="max-w-7xl mx-auto">
-            <h2 className="text-center text-[12px] tracking-[0.6em] font-black uppercase mb-16 text-gray-400 italic">Full Collection</h2>
+            <div className="text-center mb-12">
+              <h2 className="text-[12px] tracking-[0.6em] font-black uppercase mb-6 text-gray-400 italic">Full Collection</h2>
+              
+              {/* Filter Tabs */}
+              <div className="flex justify-center gap-4 md:gap-8 flex-wrap mb-10">
+                {["All", "Hoodie", "T-Shirt", "Shirt", "Pants"].map((cat) => (
+                  <button 
+                    key={cat}
+                    onClick={() => setActiveFilter(cat)}
+                    className={`text-[10px] font-black uppercase tracking-widest pb-2 border-b-2 transition-all ${activeFilter === cat ? 'border-black text-black' : 'border-transparent text-gray-300'}`}
+                  >
+                    {cat}
+                  </button>
+                ))}
+              </div>
+            </div>
+
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-x-10 gap-y-20">
-              {products.map(p => (
+              {filteredProducts.map(p => (
                 <div key={p.id} className="cursor-pointer group" onClick={() => setSelectedProduct(p)}>
-                  <div className="aspect-[4/5] overflow-hidden bg-gray-50 rounded-2xl mb-6 shadow-sm"><img src={p.image} className="w-full h-full object-cover group-hover:scale-110 transition duration-1000 grayscale-[0.2]" alt={p.name} /></div>
-                  <div className="space-y-2"><h3 className="font-bold text-[14px] uppercase tracking-[0.15em]">{p.name}</h3><p className="text-[15px] text-gray-400 font-bold">${p.price}.00</p></div>
+                  <div className="aspect-[4/5] overflow-hidden bg-gray-50 rounded-2xl mb-6 shadow-sm">
+                    <img src={p.image} className="w-full h-full object-cover group-hover:scale-110 transition duration-1000 grayscale-[0.2]" alt={p.name} />
+                  </div>
+                  <div className="space-y-2">
+                    <div className="flex justify-between items-start">
+                       <h3 className="font-bold text-[13px] uppercase tracking-[0.15em]">{p.name}</h3>
+                       <span className="text-[9px] font-black text-gray-300 uppercase">{p.category}</span>
+                    </div>
+                    <p className="text-[15px] text-gray-400 font-bold">${p.price}.00</p>
+                  </div>
                 </div>
               ))}
             </div>
           </div>
         )}
 
-        {/* --- About Page --- */}
+        {/* --- About & Contact --- */}
         {page === "about" && (
           <div className="max-w-3xl mx-auto py-24 text-center">
             <h2 className="text-5xl font-black mb-16 italic tracking-tighter uppercase underline decoration-gray-100 underline-offset-[15px]">Our Story</h2>
@@ -202,7 +245,6 @@ export default function App() {
           </div>
         )}
 
-        {/* --- Contact Page --- */}
         {page === "contact" && (
           <div className="max-w-2xl mx-auto py-16">
             <h2 className="text-center text-5xl font-black mb-20 italic uppercase">Get In Touch</h2>
@@ -222,8 +264,8 @@ export default function App() {
               <p className="text-gray-300 text-center py-32 text-lg uppercase tracking-[0.4em] italic font-bold">Empty</p>
             ) : (
               <div className="space-y-12">
-                {cart.map(item => (
-                  <div key={item.id} className="flex flex-col md:flex-row items-center gap-8 border-b border-gray-50 pb-12">
+                {cart.map((item, idx) => (
+                  <div key={idx} className="flex flex-col md:flex-row items-center gap-8 border-b border-gray-50 pb-12">
                     <img src={item.image} className="w-24 h-32 object-cover rounded-xl shadow-lg" alt="" />
                     <div className="flex-1 text-center md:text-left">
                       <h4 className="font-black uppercase text-lg mb-4">{item.name}</h4>
@@ -252,7 +294,7 @@ export default function App() {
         )}
       </main>
 
-      {/* --- Modal --- */}
+      {/* --- Product Modal --- */}
       {selectedProduct && (
         <div className="fixed inset-0 bg-white z-[200] flex items-center justify-center p-6 overflow-y-auto">
           <div className="max-w-6xl w-full flex flex-col md:flex-row gap-10 md:gap-20 relative pt-10">
